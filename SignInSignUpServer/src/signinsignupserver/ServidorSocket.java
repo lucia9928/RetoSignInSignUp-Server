@@ -5,6 +5,7 @@
  */
 package signinsignupserver;
 
+import dataAccess.FactorySignableServer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -21,7 +22,7 @@ import modelo.Usuario;
  */
 public class ServidorSocket {
 
-    private final int PUERTO = 9000;
+    private final int PUERTO = 5000;
     
     
 
@@ -37,9 +38,13 @@ public class ServidorSocket {
             System.out.println("Cliente conectado");
             salida = new ObjectOutputStream(socket.getOutputStream());
             entrada = new ObjectInputStream(socket.getInputStream());
-            salida.writeObject("Introduce contraseña:");
+            salida.writeObject("Conectado con el servidor");
+            
+            
             Usuario user= (Usuario) entrada.readObject();
             System.out.println(user.getApellido());
+                    
+            FactorySignableServer.getSignable().registrar(user);
           
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
