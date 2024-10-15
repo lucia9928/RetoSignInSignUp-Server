@@ -8,9 +8,9 @@ package signinsignupserver;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import modelo.Usuario;
+
 
 
 
@@ -18,57 +18,46 @@ import modelo.Usuario;
 /**
  *
  * @author 2dam
- */
+*/
+
 public class ServidorSocket {
 
     private final int PUERTO = 9000;
-    
-    
 
-    public void registrar() {
-        java.net.ServerSocket servidor = null;
-        Socket socket = null;
-        ObjectInputStream entrada = null;
-        ObjectOutputStream salida = null;
+    public void iniciarServidor() {
+        ServerSocket servidor = null;
+
         try {
             servidor = new ServerSocket(PUERTO);
             System.out.println("Esperando conexiones del cliente...");
-            socket = servidor.accept();
-            System.out.println("Cliente conectado");
-            salida = new ObjectOutputStream(socket.getOutputStream());
-            entrada = new ObjectInputStream(socket.getInputStream());
-            salida.writeObject("Introduce contraseña:");
-            Usuario user= (Usuario) entrada.readObject();
-            System.out.println(user.getApellido());
-          
+
+            // Bucle infinito para aceptar múltiples conexiones de clientes
+            while (true) {
+                Socket socket = servidor.accept();
+                System.out.println("Cliente conectado");
+
+                // Pasar el socket a un nuevo hilo para manejar la conexión del cliente
+                HilosServidor cliente = new HilosServidor(socket);
+                cliente.start();
+            }
+
         } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error en el servidor: " + e.getMessage());
         } finally {
             try {
                 if (servidor != null) {
                     servidor.close();
                 }
-                if (socket != null) {
-                    socket.close();
-                }
-                if (entrada != null) {
-                    entrada.close();
-                }
-                if (salida != null) {
-                    salida.close();
-                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("Fin servidor");
+            System.out.println("Servidor cerrado.");
         }
     }
 
     public static void main(String[] args) {
         ServidorSocket servidor = new ServidorSocket();
-        servidor.registrar();
+        servidor.iniciarServidor();
     }
 }
 
