@@ -5,10 +5,13 @@
  */
 package signinsignupserver;
 
+import dataAccess.ConnectionPool;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 import modelo.Usuario;
 
 
@@ -23,6 +26,12 @@ import modelo.Usuario;
 public class ServidorSocket {
 
     private final int PUERTO = 9000;
+    
+        private ConnectionPool connectionPool; // Pool de conexiones
+
+    public ServidorSocket(int maxConexiones) {
+        connectionPool = new ConnectionPool(maxConexiones); // Inicializamos el pool de conexiones
+    }
 
     public void iniciarServidor() {
         ServerSocket servidor = null;
@@ -38,6 +47,7 @@ public class ServidorSocket {
 
                 // Pasar el socket a un nuevo hilo para manejar la conexión del cliente
                 HilosServidor cliente = new HilosServidor(socket);
+                connectionPool.agregarHilo(cliente);
                 cliente.start();
             }
 
@@ -56,7 +66,8 @@ public class ServidorSocket {
     }
 
     public static void main(String[] args) {
-        ServidorSocket servidor = new ServidorSocket();
+        int maxHilos = 10;
+        ServidorSocket servidor = new ServidorSocket(maxHilos);
         servidor.iniciarServidor();
     }
 }
