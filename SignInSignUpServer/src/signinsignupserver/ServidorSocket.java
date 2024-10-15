@@ -6,6 +6,7 @@
 package signinsignupserver;
 
 import dataAccess.ConnectionPool;
+import dataAccess.FactorySignableServer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,7 +26,7 @@ import modelo.Usuario;
 
 public class ServidorSocket {
 
-    private final int PUERTO = 9000;
+    private final int PUERTO = 5000;
     
         private ConnectionPool connectionPool; // Pool de conexiones
 
@@ -39,6 +40,7 @@ public class ServidorSocket {
         try {
             servidor = new ServerSocket(PUERTO);
             System.out.println("Esperando conexiones del cliente...");
+
 
             // Bucle infinito para aceptar múltiples conexiones de clientes
             while (true) {

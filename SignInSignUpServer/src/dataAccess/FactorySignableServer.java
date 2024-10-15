@@ -5,10 +5,17 @@
  */
 package dataAccess;
 
+import modelo.Signable;
+
 /**
  *
  * @author 2dam
  */
-public class Factory {
+public class FactorySignableServer {
+    
+     public static Signable getSignable(){
+        return new Dao();
+       
+    }
     
 }
