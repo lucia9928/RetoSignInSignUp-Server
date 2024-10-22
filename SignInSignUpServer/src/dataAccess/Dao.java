@@ -6,11 +6,9 @@
 package dataAccess;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import modelo.Signable;
@@ -42,9 +40,12 @@ public class Dao implements Signable {
             
             System.out.println("Conexion exitosa a la base de datos de odoo");
 
-            String sql = "insert into res_partner(name) values(?)";
+            String sql = "insert into res_partner(name, active, emai) values(?, ?, ?)";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, user.getNombre());
+            preparedStatement.setBoolean(2, user.getActivo());
+           // preparedStatement.setString(3, user.getEmail());
+         // preparedStatement.setString(3, user.getFechaNacimiento().toString());         
             preparedStatement.executeUpdate();
 
             //while(resultSet.next()){
