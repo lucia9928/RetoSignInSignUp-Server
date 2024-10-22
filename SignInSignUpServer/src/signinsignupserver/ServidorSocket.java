@@ -5,7 +5,7 @@
  */
 package signinsignupserver;
 
-import dataAccess.ConnectionPool;
+import dataAccess.ThreadPool;
 import dataAccess.FactorySignableServer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -27,12 +27,6 @@ import modelo.Usuario;
 public class ServidorSocket {
 
     private final int PUERTO = 5000;
-    
-        private ConnectionPool connectionPool; // Pool de conexiones
-
-    public ServidorSocket(int maxConexiones) {
-        connectionPool = new ConnectionPool(maxConexiones); // Inicializamos el pool de conexiones
-    }
 
     public void iniciarServidor() {
         ServerSocket servidor = null;
@@ -49,7 +43,6 @@ public class ServidorSocket {
 
                 // Pasar el socket a un nuevo hilo para manejar la conexión del cliente
                 HilosServidor cliente = new HilosServidor(socket);
-                connectionPool.agregarHilo(cliente);
                 cliente.start();
             }
 
@@ -69,8 +62,23 @@ public class ServidorSocket {
 
     public static void main(String[] args) {
         int maxHilos = 10;
-        ServidorSocket servidor = new ServidorSocket(maxHilos);
+        ServidorSocket servidor = new ServidorSocket();
         servidor.iniciarServidor();
     }
 }
+/*
+tflogin.textProperty().addListener(this::handleTfloginTextPropertyChange);
+tflogin.focusedProperty().addListener(this::handleTfloginFocusedPropertyChange);
+this.btCrear.setOnAction(this::handleBtCrearAction);
 
+
+private void handleTfloginTextPropertyChange(Observable observable, String oldValue, String newValue){
+
+}
+
+private void handleTfloginFocusedPropertyChange(Observable observable, String oldValue, String newValue){
+    if(oldValue){
+
+    }
+} 
+*/
