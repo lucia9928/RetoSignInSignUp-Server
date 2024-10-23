@@ -5,7 +5,7 @@
  */
 package signinsignupserver;
 
-import dataAccess.ConnectionPool;
+import dataAccess.ThreadPool;
 import dataAccess.FactorySignableServer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,12 +26,12 @@ import modelo.Usuario;
 
 public class ServidorSocket {
 
-    private final int PUERTO = 5000;
+    private final int PUERTO = 9000;
     
-        private ConnectionPool connectionPool; // Pool de conexiones
+        private ThreadPool threadPool; // Pool de hilos
 
     public ServidorSocket(int maxConexiones) {
-        connectionPool = new ConnectionPool(maxConexiones); // Inicializamos el pool de conexiones
+        threadPool = new ThreadPool(maxConexiones); // Inicializamos el pool de conexiones
     }
 
     public void iniciarServidor() {
@@ -49,8 +49,7 @@ public class ServidorSocket {
 
                 // Pasar el socket a un nuevo hilo para manejar la conexión del cliente
                 HilosServidor cliente = new HilosServidor(socket);
-                connectionPool.agregarHilo(cliente);
-                cliente.start();
+                threadPool.agregarHilo(cliente);
             }
 
         } catch (IOException e) {

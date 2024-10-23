@@ -35,10 +35,6 @@ public class HilosServidor extends Thread{
             salida = new ObjectOutputStream(socket.getOutputStream());
             entrada = new ObjectInputStream(socket.getInputStream());
 
-            
-            
-
-            // Puedes procesar los datos del usuario, por ejemplo, guardar en una base de datos
             salida.writeObject("mensaje del servidor");
             Usuario user= (Usuario) entrada.readObject();
             System.out.println(user.getApellido());
