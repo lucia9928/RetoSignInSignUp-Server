@@ -3,19 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package signinsignupserver;
+package dataAccess;
+
+import modelo.Signable;
 
 /**
  *
  * @author 2dam
  */
-public class SignInSignUpServer {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
+public class FactorySignableServer {
+    
+     public static Signable getSignable(){
+        return new Dao();
+       
     }
     
 }
