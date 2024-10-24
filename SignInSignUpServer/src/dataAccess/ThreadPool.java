@@ -1,4 +1,4 @@
- /*
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -9,39 +9,44 @@ package dataAccess;
  *
  * @author 2dam
  */
-import java.util.Stack;
-import signinsignupserver.HilosServidor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class ThreadPool {
-    private Stack<HilosServidor> hilosClientes; // Usamos Stack en lugar de List
+    private final ExecutorService executorService;
     private final int maxHilos;
 
     public ThreadPool(int maxHilos) {
         this.maxHilos = maxHilos;
-        this.hilosClientes = new Stack<>();
+        this.executorService = Executors.newFixedThreadPool(maxHilos);
     }
 
-    // Método para agregar un hilo al pool
-    public synchronized void agregarHilo(HilosServidor hilo) {
-        if (hilosClientes.size() < maxHilos) {
-            hilosClientes.push(hilo); // Agregar el hilo al stack
-            hilo.start(); // Iniciar el hilo
-            System.out.println("Hilo agregado al pool. Total hilos: " + hilosClientes.size());
+    public synchronized void agregarHilo(Runnable tarea) {
+        if (executorService != null) {
+            executorService.execute(tarea);
+            System.out.println("Tarea agregada al pool. Total hilos activos: " + getNumeroDeHilos());
         } else {
-            System.out.println("Pool de conexiones lleno. No se puede agregar más hilos.");
+            System.out.println("El pool de hilos no está disponible.");
         }
     }
 
-    // Método para cerrar todos los hilos del pool
     public void cerrarTodosLosHilos() {
-        while (!hilosClientes.isEmpty()) {
-            HilosServidor hilo = hilosClientes.pop(); // Obtener el hilo del stack
-            hilo.interrupt(); // Detener el hilo
+        try {
+            executorService.shutdown();
+            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+            System.out.println("Todos los hilos del pool han sido cerrados.");
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
         }
-        System.out.println("Todos los hilos del pool han sido cerrados.");
     }
 
     public int getNumeroDeHilos() {
-        return hilosClientes.size(); // Retorna el número actual de hilos
+        
+        return ((ThreadPoolExecutor) executorService).getActiveCount();
     }
 }
