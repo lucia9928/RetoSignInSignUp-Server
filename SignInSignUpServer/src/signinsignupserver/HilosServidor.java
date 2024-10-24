@@ -59,10 +59,11 @@ public class HilosServidor extends Thread{
                 if (salida != null) {
                     salida.close();
                 }
+                System.out.println("Hilo cerrado.");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("Conexión con el cliente cerrada.");
+            
         }
     }
     

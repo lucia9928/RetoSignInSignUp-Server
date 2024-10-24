@@ -27,6 +27,12 @@ import modelo.Usuario;
 public class ServidorSocket {
 
     private final int PUERTO = 5000;
+    
+        private ThreadPool threadPool; // Pool de hilos
+
+    public ServidorSocket(int maxConexiones) {
+        threadPool = new ThreadPool(maxConexiones); // Inicializamos el pool de conexiones
+    }
 
     public void iniciarServidor() {
         ServerSocket servidor = null;
@@ -43,7 +49,7 @@ public class ServidorSocket {
 
                 // Pasar el socket a un nuevo hilo para manejar la conexión del cliente
                 HilosServidor cliente = new HilosServidor(socket);
-                cliente.start();
+                threadPool.agregarHilo(cliente);
             }
 
         } catch (IOException e) {
@@ -61,24 +67,8 @@ public class ServidorSocket {
     }
 
     public static void main(String[] args) {
-        int maxHilos = 10;
-        ServidorSocket servidor = new ServidorSocket();
+        int maxHilos = 2;
+        ServidorSocket servidor = new ServidorSocket(maxHilos);
         servidor.iniciarServidor();
     }
 }
-/*
-tflogin.textProperty().addListener(this::handleTfloginTextPropertyChange);
-tflogin.focusedProperty().addListener(this::handleTfloginFocusedPropertyChange);
-this.btCrear.setOnAction(this::handleBtCrearAction);
-
-
-private void handleTfloginTextPropertyChange(Observable observable, String oldValue, String newValue){
-
-}
-
-private void handleTfloginFocusedPropertyChange(Observable observable, String oldValue, String newValue){
-    if(oldValue){
-
-    }
-} 
-*/
