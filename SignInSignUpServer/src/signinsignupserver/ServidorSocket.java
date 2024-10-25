@@ -15,20 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 import modelo.Usuario;
 
-
-
-
-
 /**
  *
  * @author 2dam
-*/
-
+ */
 public class ServidorSocket {
 
-    private final int PUERTO = 5000;
     
-        private ThreadPool threadPool; // Pool de hilos
+
+    private final int PUERTO = 5000;
+
+    private  ThreadPool threadPool; // Pool de hilos
 
     public ServidorSocket(int maxConexiones) {
         threadPool = new ThreadPool(maxConexiones); // Inicializamos el pool de conexiones
@@ -40,7 +37,6 @@ public class ServidorSocket {
         try {
             servidor = new ServerSocket(PUERTO);
             System.out.println("Esperando conexiones del cliente...");
-
 
             // Bucle infinito para aceptar múltiples conexiones de clientes
             while (true) {

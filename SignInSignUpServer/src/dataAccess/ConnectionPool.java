@@ -8,8 +8,6 @@ package dataAccess;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Stack;
 
@@ -18,10 +16,15 @@ import java.util.Stack;
  * @author 2dam
  */
 public class ConnectionPool {
-
+    /*
     private final String url = ResourceBundle.getBundle("config").getString("url");
     private final String user = ResourceBundle.getBundle("config").getString("user");
     private final String password = ResourceBundle.getBundle("config").getString("password");
+    */
+    private final String url = "jdbc:postgresql://192.168.20.72:5432/odoo";
+    private final String user = "odoo";
+    private final String password ="abcd*1234"; 
+    
     private final int conexiones =10;
 
     private final Stack<Connection> conexionesDisponibles = new Stack<>();

@@ -19,6 +19,8 @@ import modelo.Usuario;
  * @author 2dam
  */
 public class HilosServidor extends Thread{
+   
+
     private Socket socket;
     private ObjectInputStream entrada;
     private ObjectOutputStream salida;
@@ -41,7 +43,6 @@ public class HilosServidor extends Thread{
             // Puedes procesar los datos del usuario, por ejemplo, guardar en una base de datos
             salida.writeObject("mensaje del servidor");
             Usuario user= (Usuario) entrada.readObject();
-            System.out.println(user.getApellido());
             
             FactorySignableServer.getSignable().registrar(user);
         } catch (IOException | ClassNotFoundException e) {
