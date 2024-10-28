@@ -6,11 +6,9 @@
 package dataAccess;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import modelo.Signable;
@@ -28,7 +26,7 @@ public class Dao implements Signable {
         try {
             conexion = new ConnectionPool();
         } catch (SQLException e) {
-            Logger.getLogger(Dao.class.getName()).log(Level.SEVERE, "Error al crear el pool de conexiones", e);
+            Logger.getLogger(Dao.class.getName()).log(Level.SEVERE, "Error al crear el pool de conexiones, clase dao", e);
         }
     }
 
@@ -42,15 +40,26 @@ public class Dao implements Signable {
             
             System.out.println("Conexion exitosa a la base de datos de odoo");
 
-            String sql = "insert into res_partner(name) values(?)";
+            //String sql = "insert into res_partner(name, street, zip, city, email, phone) values(?)";
+            String sql ="insert into res_partner(name) values(?)";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, user.getNombre());
             preparedStatement.executeUpdate();
-
-            //while(resultSet.next()){
-            //    String name=resultSet.getString("login");
-            //    System.out.println("Nombre del Partner" + name);
-            //} 
+            
+            /*z
+           // Obtener ID generado
+            resultSet = preparedStatement.getGeneratedKeys();
+            if (resultSet.next()) {
+                int idGenerado = resultSet.getInt(1);
+                System.out.println(idGenerado);
+            }
+            
+            
+            String sql2 = "insert into res_partner(name, street, zip, city, email, phone) values(?)";
+            preparedStatement = connection.prepareStatement(sql2);
+            preparedStatement.setString(1, user.getNombre());
+            preparedStatement.executeUpdate();*/
+           
             conexion.devolverConexion(connection);
         } catch (SQLException ex) {
             Logger.getLogger(Dao.class.getName()).log(Level.SEVERE, null, ex);
@@ -71,6 +80,11 @@ public class Dao implements Signable {
 
         }
 
+    }
+
+    @Override
+    public void login(Usuario user) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
