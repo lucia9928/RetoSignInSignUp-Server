@@ -5,6 +5,7 @@
  */
 package dataAccess;
 
+import excepciones.CreateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -83,7 +84,7 @@ public class Dao implements Signable {
     }
 
     @Override
-    public void login(Usuario user) throws Exception {
+    public Usuario login(Usuario user) throws CreateException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
