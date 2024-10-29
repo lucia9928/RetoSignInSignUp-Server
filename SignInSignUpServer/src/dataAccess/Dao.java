@@ -27,7 +27,7 @@ public class Dao implements Signable {
         try {
             conexion = new ConnectionPool();
         } catch (SQLException e) {
-            Logger.getLogger(Dao.class.getName()).log(Level.SEVERE, "Error al crear el pool de conexiones, clase dao", e);
+            Logger.getLogger(Dao.class.getName()).log(Level.SEVERE, "Error al crear el pool de conexiones", e);
         }
     }
 
@@ -36,30 +36,42 @@ public class Dao implements Signable {
         Connection connection = conexion.obtenerConexion();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        int idGenerado = 0;
 
         try {
             
             System.out.println("Conexion exitosa a la base de datos de odoo");
 
-            //String sql = "insert into res_partner(name, street, zip, city, email, phone) values(?)";
-            String sql ="insert into res_partner(name) values(?)";
+            String sql = "insert into res_partner(name, street, zip, city, email, phone) values(?, ?, ?, ?, ?, ?)";
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, user.getNombre());
+            preparedStatement.setString(1, user.getNombre()+"-"+user.getApellido());
+            preparedStatement.setString(2, user.getCalle());
+            preparedStatement.setString(3, user.getCodigoPostal());
+            preparedStatement.setString(4, user.getCiudad());
+            preparedStatement.setString(5, user.getEmail());
+            preparedStatement.setInt(6, user.getTelefono());
             preparedStatement.executeUpdate();
             
-            /*z
-           // Obtener ID generado
-            resultSet = preparedStatement.getGeneratedKeys();
-            if (resultSet.next()) {
-                int idGenerado = resultSet.getInt(1);
-                System.out.println(idGenerado);
+            
+            sql="select id from res_partner order by id desc limit 1";
+            preparedStatement=connection.prepareStatement(sql);
+            resultSet=preparedStatement.executeQuery();
+            if(resultSet.next()){
+                idGenerado=resultSet.getInt(1);
             }
             
             
-            String sql2 = "insert into res_partner(name, street, zip, city, email, phone) values(?)";
-            preparedStatement = connection.prepareStatement(sql2);
-            preparedStatement.setString(1, user.getNombre());
-            preparedStatement.executeUpdate();*/
+            sql = "insert into res_users (company_id, partner_id, active, login, password, notification_type) values (?, ?, ?, ?, ?,?)";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, 1);
+            preparedStatement.setInt(2, idGenerado);
+            preparedStatement.setBoolean(3, user.getActivo());
+            preparedStatement.setString(4, user.getEmail());
+            preparedStatement.setString(5, user.getContrasena());
+            preparedStatement.setString(6, "email");
+            preparedStatement.executeUpdate();
+            
+           
            
             conexion.devolverConexion(connection);
         } catch (SQLException ex) {
@@ -84,7 +96,7 @@ public class Dao implements Signable {
     }
 
     @Override
-    public Usuario login(Usuario user) throws CreateException {
+    public Usuario login(Usuario user) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
