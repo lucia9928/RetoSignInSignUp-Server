@@ -6,60 +6,45 @@
 package signinsignupserver;
 
 import dataAccess.ThreadPool;
-import dataAccess.FactorySignableServer;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
-import modelo.Usuario;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-/**
- *
- * @author 2dam
- */
 public class ServidorSocket {
 
-    
-
     private final int PUERTO = 5000;
-
-    private  ThreadPool threadPool; // Pool de hilos
+    private final ExecutorService threadPool;
 
     public ServidorSocket(int maxConexiones) {
-        threadPool = new ThreadPool(maxConexiones); // Inicializamos el pool de conexiones
+        this.threadPool = Executors.newFixedThreadPool(maxConexiones);
     }
 
     public void iniciarServidor() {
-        ServerSocket servidor = null;
-
-        try {
-            servidor = new ServerSocket(PUERTO);
+        try (ServerSocket servidor = new ServerSocket(PUERTO)) {
             System.out.println("Esperando conexiones del cliente...");
 
-            // Bucle infinito para aceptar múltiples conexiones de clientes
-            while (true) {
-                Socket socket = servidor.accept();
-                System.out.println("Cliente conectado");
-
-                // Pasar el socket a un nuevo hilo para manejar la conexión del cliente
-                HilosServidor cliente = new HilosServidor(socket);
-                threadPool.agregarHilo(cliente);
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Socket socket = servidor.accept();
+                    System.out.println("Cliente conectado");
+                    threadPool.submit(new HilosServidor(socket)); // Usa ExecutorService para manejar hilos
+                } catch (IOException e) {
+                    System.out.println("Error al aceptar conexión: " + e.getMessage());
+                }
             }
-
         } catch (IOException e) {
             System.out.println("Error en el servidor: " + e.getMessage());
         } finally {
-            try {
-                if (servidor != null) {
-                    servidor.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            System.out.println("Servidor cerrado.");
+            cerrarServidor();
         }
+    }
+
+    private void cerrarServidor() {
+        threadPool.shutdownNow();
+        System.out.println("Todos los hilos del pool han sido cerrados.");
     }
 
     public static void main(String[] args) {

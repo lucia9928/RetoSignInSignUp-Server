@@ -45,7 +45,7 @@ public class Dao implements Signable {
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, user.getNombre() + "-" + user.getApellido());
             preparedStatement.setString(2, user.getCalle());
-            preparedStatement.setString(3, user.getCodPostal());
+            preparedStatement.setString(3, user.getCodigoPostal());
             preparedStatement.setString(4, user.getCiudad());
             preparedStatement.setString(5, user.getEmail());
             preparedStatement.setString(6, user.getTelefono());
