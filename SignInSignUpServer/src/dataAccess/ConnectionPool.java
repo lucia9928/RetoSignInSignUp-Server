@@ -21,7 +21,7 @@ public class ConnectionPool {
     private final String user = ResourceBundle.getBundle("config").getString("user");
     private final String password = ResourceBundle.getBundle("config").getString("password");
     */
-    private final String url = "jdbc:postgresql://192.168.20.72:5432/odoo";
+    private final String url = "jdbc:postgresql://192.168.20.69:5432/odoo";
     private final String user = "odoo";
     private final String password ="abcd*1234"; 
     

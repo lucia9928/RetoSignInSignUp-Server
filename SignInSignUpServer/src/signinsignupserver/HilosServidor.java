@@ -12,9 +12,11 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import modelo.ActionUsers;
 import modelo.Usuario;
 import utils.Errores;
-import utils.UserAction;
+import utils.Actions;
+import static utils.Actions.REGISTER_REQUEST;
 
 public class HilosServidor extends Thread {
 
@@ -32,7 +34,7 @@ public class HilosServidor extends Thread {
             salida = new ObjectOutputStream(socket.getOutputStream());
             entrada = new ObjectInputStream(socket.getInputStream());
 
-            UserAction comando = (UserAction) entrada.readObject();
+            ActionUsers comando = (ActionUsers) entrada.readObject();
             procesarComando(comando);
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Error con el cliente: " + e.getMessage());
@@ -41,17 +43,13 @@ public class HilosServidor extends Thread {
         }
     }
 
-    private void procesarComando(UserAction comando) {
+    private void procesarComando(ActionUsers comando) {
         try {
-            switch (comando) {
-                case REGISTER_REQUEST:
-                    registrarUsuario();
-                    break;
-                case LOGIN_REQUEST:
-                    iniciarSesion();
-                    break;
-                default:
-                    salida.writeObject("Comando no reconocido.");
+            if(Actions.REGISTER_REQUEST.equals(comando.getAction().REGISTER_REQUEST)){
+                registrarUsuario();
+            }
+            if(Actions.LOGGING_REQUEST.equals(comando.getAction().LOGGING_REQUEST)){
+                iniciarSesion();
             }
         } catch (Exception e) {
             enviarMensajeError(e);
@@ -60,16 +58,13 @@ public class HilosServidor extends Thread {
 
     private void registrarUsuario() throws IOException, ClassNotFoundException, Errores.UserAlreadyExistsException, Errores.DatabaseConnectionException, Exception {
         salida.writeObject("Ingrese sus datos para registrarse.");
-        Usuario user = (Usuario) entrada.readObject();
+        ActionUsers user = (ActionUsers) entrada.readObject();
         FactorySignableServer.getSignable().registrar(user);
         salida.writeObject("Registro exitoso. Ahora puede iniciar sesión.");
     }
 
     private void iniciarSesion() throws IOException, ClassNotFoundException, Errores.AuthenticationFailedException, Errores.DatabaseConnectionException, Exception {
-        salida.writeObject("Ingrese sus credenciales para iniciar sesión.");
-        Usuario user = (Usuario) entrada.readObject();
-        Usuario usuarioAutenticado = FactorySignableServer.getSignable().login(user);
-        salida.writeObject("Inicio de sesión exitoso. Bienvenido " + usuarioAutenticado.getNombre() + "!");
+
     }
 
     private void enviarMensajeError(Exception e) {
@@ -82,15 +77,9 @@ public class HilosServidor extends Thread {
 
     private void cerrarConexion() {
         try {
-            if (entrada != null) {
-                entrada.close();
-            }
-            if (salida != null) {
-                salida.close();
-            }
-            if (socket != null) {
-                socket.close();
-            }
+            if (entrada != null) entrada.close();
+            if (salida != null) salida.close();
+            if (socket != null) socket.close();
             System.out.println("Conexión cerrada para el cliente.");
         } catch (IOException e) {
             System.out.println("Error cerrando conexión: " + e.getMessage());
