@@ -11,8 +11,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import modelo.ActionUsers;
 import modelo.Signable;
 import modelo.Usuario;
+import utils.Errores;
 
 /**
  *
@@ -31,7 +33,8 @@ public class Dao implements Signable {
     }
 
     @Override
-    public void registrar(Usuario user) {
+    public ActionUsers registrar(ActionUsers user) {
+        ActionUsers userr = null;
         Connection connection = conexion.obtenerConexion();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -43,12 +46,12 @@ public class Dao implements Signable {
 
             String sql = "insert into res_partner(name, street, zip, city, email, phone) values(?, ?, ?, ?, ?, ?)";
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, user.getNombre() + "-" + user.getApellido());
-            preparedStatement.setString(2, user.getCalle());
-            preparedStatement.setString(3, user.getCodPostal());
-            preparedStatement.setString(4, user.getCiudad());
-            preparedStatement.setString(5, user.getEmail());
-            preparedStatement.setString(6, user.getTelefono());
+            preparedStatement.setString(1, userr.getUser().getNombre() + "-" + userr.getUser().getApellido());
+            preparedStatement.setString(2, userr.getUser().getCalle());
+            preparedStatement.setString(3, userr.getUser().getCodigoPostal());
+            preparedStatement.setString(4, userr.getUser().getCiudad());
+            preparedStatement.setString(5, userr.getUser().getEmail());
+            preparedStatement.setString(6, userr.getUser().getTelefono());
             preparedStatement.executeUpdate();
 
             sql = "select id from res_partner order by id desc limit 1";
@@ -58,13 +61,13 @@ public class Dao implements Signable {
                 idGenerado = resultSet.getInt(1);
             }
 
-            sql = "insert into res_users (company_id, partner_id, active, login, password, notification_type) values (?, ?, ?, ?, ?,?)";
+            sql = "insert into res_users (company_id, partner_id, active, login, password, notification_type) values (?, ?, ?, ?, ?, ?)";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, 1);
             preparedStatement.setInt(2, idGenerado);
-            preparedStatement.setBoolean(3, user.getActivo());
-            preparedStatement.setString(4, user.getEmail());
-            preparedStatement.setString(5, user.getContrasena());
+            preparedStatement.setBoolean(3, userr.getUser().getActivo());
+            preparedStatement.setString(4, user.getUser().getEmail());
+            preparedStatement.setString(5, userr.getUser().getContrasena());
             preparedStatement.setString(6, "email");
             preparedStatement.executeUpdate();
 
@@ -87,43 +90,12 @@ public class Dao implements Signable {
             }
 
         }
-
+        return userr;
     }
 
     @Override
-    public Usuario login(Usuario user) throws Exception {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-
-        try {
-            connection = conexion.obtenerConexion();
-
-            String sql = "SELECT login, password FROM res_users WHERE login = ? AND password = ?;";
-            preparedStatement = connection.prepareStatement(sql);
-
-            preparedStatement.setString(1, user.getEmail());
-            preparedStatement.setString(2, user.getContrasena());
-
-            resultSet = preparedStatement.executeQuery();
-
-        } catch (SQLException e) {
-            Logger.getLogger(Dao.class.getName()).log(Level.SEVERE, "Error al autenticar el usuario", e);
-            throw e;
-
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
-        }
-
-        return user;
+    public ActionUsers login(Usuario user) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
