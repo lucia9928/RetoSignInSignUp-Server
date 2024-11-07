@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package signinsignupserver;
 
 import dataAccess.FactorySignableServer;
@@ -23,9 +18,12 @@ public class HilosServidor extends Thread {
     private Socket socket;
     private ObjectInputStream entrada;
     private ObjectOutputStream salida;
+    private ServidorSocket servidorSocket;  
 
-    public HilosServidor(Socket socket) {
+    
+    public HilosServidor(Socket socket, ServidorSocket servidorSocket) {
         this.socket = socket;
+        this.servidorSocket = servidorSocket;
     }
 
     @Override
@@ -84,8 +82,7 @@ public class HilosServidor extends Thread {
             Logger.getLogger(HilosServidor.class.getName()).log(Level.SEVERE, "Error enviando mensaje de error al cliente", ioException);
         }
     }
-
-    private void cerrarConexion() {
+   private void cerrarConexion() {
         try {
             if (entrada != null) {
                 entrada.close();
@@ -99,7 +96,8 @@ public class HilosServidor extends Thread {
             System.out.println("Conexión cerrada para el cliente.");
         } catch (IOException e) {
             Logger.getLogger(HilosServidor.class.getName()).log(Level.SEVERE, "Error al cerrar las conexiones: " + e.getMessage(), e);
-
         }
+
+        servidorSocket.clienteDesconectado();
     }
 }
