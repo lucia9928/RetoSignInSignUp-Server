@@ -6,6 +6,7 @@
 package dataAccess;
 
 import modelo.Signable;
+import utils.Errores;
 
 /**
  *
@@ -13,7 +14,7 @@ import modelo.Signable;
  */
 public class FactorySignableServer {
     
-     public static Signable getSignable(){
+     public static Signable getSignable() throws Errores.PropertiesFileException{
         return new Dao();
        
     }

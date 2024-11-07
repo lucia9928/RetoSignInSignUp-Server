@@ -16,20 +16,23 @@ import java.util.Stack;
  * @author 2dam
  */
 public class ConnectionPool {
-    /*
-    private final String url = ResourceBundle.getBundle("config").getString("url");
-    private final String user = ResourceBundle.getBundle("config").getString("user");
-    private final String password = ResourceBundle.getBundle("config").getString("password");
-    */
-    private final String url = "jdbc:postgresql://192.168.20.69:5432/odoo";
-    private final String user = "odoo";
-    private final String password ="abcd*1234"; 
+
     
-    private final int conexiones =10;
+    private final String url="jdbc:postgresql://192.168.20.72:5432/odoo";
+    private final String user="odoo";
+    private final String password="abcd*1234";
+            
+;
+    
+    
+
+
+    private final int conexiones = 10;
 
     private final Stack<Connection> conexionesDisponibles = new Stack<>();
 
     public ConnectionPool() throws SQLException {
+       
 
         for (int i = 0; i < conexiones; i++) {
 
