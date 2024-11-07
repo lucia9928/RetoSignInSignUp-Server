@@ -24,34 +24,39 @@ public class Dao implements Signable {
 
     private ConnectionPool conexion;
 
-    public Dao() {
+    public Dao() throws Errores.PropertiesFileException {
         try {
             conexion = new ConnectionPool();
         } catch (SQLException e) {
-            Logger.getLogger(Dao.class.getName()).log(Level.SEVERE, "Error al crear el pool de conexiones", e);
+            throw new Errores.PropertiesFileException("");
         }
     }
 
     @Override
-    public ActionUsers registrar(ActionUsers user) {
-        ActionUsers userr = null;
+    public ActionUsers registrar(ActionUsers user)
+            throws Errores.UserAlreadyExistsException, Errores.DatabaseConnectionException {
         Connection connection = conexion.obtenerConexion();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         int idGenerado = 0;
 
         try {
-
-            System.out.println("Conexion exitosa a la base de datos de odoo");
-
-            String sql = "insert into res_partner(name, street, zip, city, email, phone) values(?, ?, ?, ?, ?, ?)";
+            String sql = "SELECT login from res_users where login =?";
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, userr.getUser().getNombre() + "-" + userr.getUser().getApellido());
-            preparedStatement.setString(2, userr.getUser().getCalle());
-            preparedStatement.setString(3, userr.getUser().getCodigoPostal());
-            preparedStatement.setString(4, userr.getUser().getCiudad());
-            preparedStatement.setString(5, userr.getUser().getEmail());
-            preparedStatement.setString(6, userr.getUser().getTelefono());
+            preparedStatement.setString(1, user.getUser().getEmail());
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                throw new Errores.UserAlreadyExistsException("");
+            }
+
+            sql = "insert into res_partner(name, street, zip, city, email, phone) values(?, ?, ?, ?, ?, ?)";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, user.getUser().getNombre() + "-" + user.getUser().getApellido());
+            preparedStatement.setString(2, user.getUser().getCalle());
+            preparedStatement.setString(3, user.getUser().getCodigoPostal());
+            preparedStatement.setString(4, user.getUser().getCiudad());
+            preparedStatement.setString(5, user.getUser().getEmail());
+            preparedStatement.setString(6, user.getUser().getTelefono());
             preparedStatement.executeUpdate();
 
             sql = "select id from res_partner order by id desc limit 1";
@@ -65,15 +70,15 @@ public class Dao implements Signable {
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, 1);
             preparedStatement.setInt(2, idGenerado);
-            preparedStatement.setBoolean(3, userr.getUser().getActivo());
+            preparedStatement.setBoolean(3, user.getUser().getActivo());
             preparedStatement.setString(4, user.getUser().getEmail());
-            preparedStatement.setString(5, userr.getUser().getContrasena());
+            preparedStatement.setString(5, user.getUser().getContrasena());
             preparedStatement.setString(6, "email");
             preparedStatement.executeUpdate();
 
             conexion.devolverConexion(connection);
         } catch (SQLException ex) {
-            Logger.getLogger(Dao.class.getName()).log(Level.SEVERE, null, ex);
+            throw new Errores.DatabaseConnectionException("");
         } finally {
             try {
                 if (resultSet != null) {
@@ -90,12 +95,72 @@ public class Dao implements Signable {
             }
 
         }
-        return userr;
+        return user;
     }
 
     @Override
-    public ActionUsers login(Usuario user) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public ActionUsers login(ActionUsers user) throws Errores.DatabaseConnectionException, Errores.AuthenticationFailedException {
+        Connection connection = conexion.obtenerConexion();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int partnerid = 0;
+        try {
+
+            // Consulta SQL para buscar el usuario por email y contraseña
+            String sql = "SELECT * FROM res_users WHERE login = ? AND password = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, user.getUser().getEmail());
+            preparedStatement.setString(2, user.getUser().getContrasena());
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                partnerid = resultSet.getInt("partner_id");
+                user.getUser().setActivo(resultSet.getBoolean("active"));
+            } else {
+                throw new Errores.AuthenticationFailedException("");
+            }
+            sql = "SELECT * FROM res_partner WHERE id = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, partnerid);
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+
+                String fullName = resultSet.getString("name");
+
+                String[] nameParts = fullName.split(" ", 2);
+
+                if (nameParts.length >= 2) {
+                    user.getUser().setNombre(nameParts[0]);
+                    user.getUser().setApellido(nameParts[1]);
+                } else {
+                    user.getUser().setNombre(nameParts[0]);
+                    user.getUser().setApellido("");
+                }
+                user.getUser().setTelefono(resultSet.getString("phone"));
+                user.getUser().setCalle(resultSet.getString("street"));
+                user.getUser().setCodigoPostal(resultSet.getString("zip"));
+                user.getUser().setCiudad(resultSet.getString("city"));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Dao.class.getName()).log(Level.SEVERE, null, ex);
+            throw new Errores.DatabaseConnectionException("Error al buscar el usuario en la bas de datos.");
+        } finally {
+
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(Dao.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+        return user;
     }
 
 }
